@@ -1,0 +1,11 @@
+1:  10  task description
+--- test cases from: https://stackoverflow.com/questions/3955680/how-to-check-if-my-avl-tree-implementation-is-correct
+2:  10  case 1a, insert 15
+3:  10  case 2a, insert 15
+4:  10  case 3a, insert 15
+5:  10  case 1b, insert 8
+6:  10  case 2b, insert 8
+7:  10  case 3b, insert 8
+8:  10  case 1, remove 1
+9:  10  case 2, remove 1
+10: 10  case 3, remove 1

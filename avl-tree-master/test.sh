@@ -4,14 +4,14 @@ TASK=example
 EXEC=./$TASK
 DIFF='diff -Bb'
 
-if which gtime > /dev/null; then
-  TIME=gtime
-elif [ -x /usr/bin/time ]; then
-  TIME=/usr/bin/time
-else
+#if which gtime > /dev/null; then
+#  TIME=gtime
+#elif [ -x /usr/bin/time ]; then
+#  TIME=/usr/bin/time
+#else
   echo "Cannot find a suitable time utility, turning timer off..."
   TIME=
-fi
+#fi
 
 OFFICIAL=0
 WITH_LIMITS=0

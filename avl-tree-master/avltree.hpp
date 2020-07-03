@@ -1,3 +1,5 @@
+// Κωνσταντίνος Σίσκος el19887
+
 #ifndef __AVLTREE_HPP__
 #define __AVLTREE_HPP__
 
@@ -26,8 +28,10 @@ template <typename T>
 class avltree : public Container<T>, public Iterable<T> {
     private:
         //TODO add here any helper functions for the function below
+        //
 
     public:
+
 
 
         //TODO fix this shit
@@ -36,16 +40,43 @@ class avltree : public Container<T>, public Iterable<T> {
         Iterator<T> rank(int n) {
             //This is a node
             node* final_node;
-
+            
+            if(n >= the_size){
+                return end();
+            }
+            if(n < 0) {
+                return end();
+            }
 
             //Find the node, and the meaning of life
+            final_node = root;
+            while(n >= 0){
+                int leftSize = subtree_size(final_node->left);
 
+                if(leftSize == n){
+                    break;
+                }
+
+                if(leftSize > n){
+                    final_node = final_node->left;
+                    continue;
+                }
+
+                if(leftSize < n){
+                    n = n - leftSize - 1;
+                    final_node = final_node->right;
+                    
+                }
+
+                
+
+            }
 
 
 
 
             //Create the final iterator to be returned
-            Iterator<T> it = Iterator<T>(TreeIteratorImpl(n));
+            Iterator<T> it = Iterator<T>(new TreeIteratorImpl(final_node));
             return it;
         }
 
@@ -99,6 +130,12 @@ class avltree : public Container<T>, public Iterable<T> {
             node(const T &x, node *p = nullptr)
                 : data(x), balance(EH), left(nullptr), right(nullptr), parent(p) , numberOfChildren(0) {}
         };
+        int subtree_size(node* n){
+            if(n == nullptr){
+                return 0;
+            }
+            return 1 + subtree_size(n->left) + subtree_size(n->right);
+        }
 
         // Returns a node's left child (if sign < 0) or right child (otherwise).
         // A reference to the child's pointer is returned, so that this function
@@ -401,6 +438,13 @@ class avltree : public Container<T>, public Iterable<T> {
             node *B = child(A, -sign);
             node *E = child(B, +sign);
             node *P = A->parent;
+            //int size_B_old = B->numberOfChildren;
+            int size_A_old = A->numberOfChildren;
+            A->numberOfChildren = A->numberOfChildren - (B->numberOfChildren + 1);
+            if(E != nullptr){
+                A->numberOfChildren += E->numberOfChildren + 1;
+            }
+            B->numberOfChildren = size_A_old;
 
             child(A, -sign) = E;
             A->parent = B;
@@ -458,6 +502,22 @@ class avltree : public Container<T>, public Iterable<T> {
             node *P = A->parent;
             balance_type e = E->balance;
 
+            // Child counting
+            int size_A_old = A->numberOfChildren;
+            int E_children_old = E->numberOfChildren;
+            E->numberOfChildren = size_A_old;
+            A->numberOfChildren -= (B->numberOfChildren + 1);
+            B->numberOfChildren -= (E_children_old + 1);
+            if(G != nullptr){
+                A->numberOfChildren += G->numberOfChildren + 1;
+            }
+            if(F != nullptr){
+                B->numberOfChildren += F->numberOfChildren + 1;
+            }
+
+
+
+
             child(A, -sign) = G;
             A->parent = E;
             A->balance = sign * e >= 0 ? EH : negate_balance(e);
@@ -465,6 +525,8 @@ class avltree : public Container<T>, public Iterable<T> {
             child(B, +sign) = F;
             B->parent = E;
             B->balance = sign * e <= 0 ? EH : negate_balance(e);
+
+
 
             child(E, +sign) = A;
             child(E, -sign) = B;
@@ -568,6 +630,7 @@ class avltree : public Container<T>, public Iterable<T> {
                  * successor.  It cannot be nullptr, since the node itself was
                  * an ancestor of its in-order successor.
                  * left_deleted has been set to true if the node's
+                 add_one_to_self_and_parents(t);
                  * in-order successor was the left child of parent,
                  * otherwise false.  */
             } else {
@@ -576,6 +639,15 @@ class avltree : public Container<T>, public Iterable<T> {
                  * reflect which child of parent node was.  Or, if
                  * node was the root node, simply update the root node
                  * and return.  */
+
+
+                node* temp = t->parent;
+                while(temp != nullptr) {
+                    temp->numberOfChildren--;
+                    temp = temp->parent;
+                }
+
+
                 node *child = t->left != nullptr ? t->left : t->right;
                 p = t->parent;
                 if (p != nullptr) {
@@ -603,8 +675,17 @@ class avltree : public Container<T>, public Iterable<T> {
         /* Swaps node X, which must have 2 children, with its in-order successor, then
          * unlinks node X.  Returns the parent of X just before unlinking, without its
          * balance factor having been updated to account for the unlink.  */
-        node *swap_with_successor(node *X, bool &left_deleted_ret) {
+        node *swap_with_successor(node *X, bool &left_deleted_ret) { // Adoption service
             node *Y = X->right, *ret;
+            //Fix child count
+            Y->numberOfChildren = X->numberOfChildren - 1;
+            node* temp = X;
+            while(temp != nullptr){
+                temp->numberOfChildren--;
+                temp = temp->parent;
+            }
+
+
             if (Y->left == nullptr) {
                 /*
                  *     P?           P?           P?

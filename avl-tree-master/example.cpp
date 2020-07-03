@@ -11,6 +11,7 @@ using namespace std;
 //
 //   i key   insert key
 //   l key   prints "Y" if key was found, "N" if it was not
+//   k rank  prints the key with k rank
 //   r key   removes key, if it exists
 //   s       prints the tree size, i.e., number of nodes
 //   c       clears the tree, i.e., removes all of its nodes
@@ -34,6 +35,23 @@ int main() {
         cin >> key;
         auto i = t.lookup(key);
         cout << (i == t.end() ? "N" : "Y") << endl;
+        break;
+      }
+      case 'k': {
+        int key;
+        cin >> key;
+        auto i = t.lookup(key);
+        auto rank = t.rank(key);
+
+        if(rank == t.end()){
+            cout << "Invalid rank" << endl;
+        }else{
+            int key = rank.getImpl()->access();
+            cout << "Key " << key << endl;
+        }
+
+
+        
         break;
       }
       case 'r': {
